@@ -1,4 +1,19 @@
+import simplejson
+from collections import OrderedDict
+import collections
+import yaml
+from phpserialize import *
+#obj = dumps('a:2:{s:3:"foo";i:1;s:3:"bar";i:2;}')
+obj = 'a:2:{i:0;a:2:{s:3:"qty";i:1;s:5:"price";s:4:"0.39";}i:1;a:2:{s:3:"qty";i:3;s:5:"price";s:4:"0.33";}}'
+#fg=loads(obj,array_hook='OrderedDict')
+c=OrderedDict([('foo', 1), ('bar', 2)])
+data=dumps('a:2:{i:0;a:2:{s:3:"qty";i:1;s:5:"price";s:4:"0.39";}i:1;a:2:{s:3:"qty";i:3;s:5:"price";s:4:"0.33";}}')
+loads(data, object_hook=OrderedDict)
+g=yaml.load(obj)
+
+
 pricet='a:2:{i:0;a:2:{s:3:"qty";i:1;s:5:"price";s:4:"0.39";}i:1;a:2:{s:3:"qty";i:3;s:5:"price";s:4:"0.33";}}'
+f=simplejson.loads(pricet)
 PriceTierCount=int(pricet[2])
 print(PriceTierCount)
 loop_pos = 0
