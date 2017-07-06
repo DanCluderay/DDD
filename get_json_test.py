@@ -1,6 +1,7 @@
 import requests
 import json
 import shopify
+from phpserialize import serialize, unserialize
 keyp:str ="461824c0a06d4be0e94851deeabc3965"
 passp:str  ="9bb4f551ba4888c9199b7a9509f0e872"
 urlstart:str ="https://dans-daily-deals.myshopify.com/admin"
@@ -10,6 +11,12 @@ def get_all_products():
     pd = requests.get(urlstart + "/products/count.json",auth=(keyp,passp))
 
     print(pd)
+
+def de_serialized(encoded_array):
+    b = bytes(encoded_array, 'utf-8')
+    data=unserialize(b)
+    print(data)
+    return data
 
 
 def get_all_orders():
@@ -25,7 +32,26 @@ def get_all_orders():
     shippingaddress=j['shipping_address']
     customerdetails = j['customer']
     c=j.__len__()
-    for key in j:
+    shopify_Order_id:int=0
+    Orderref_str:str=''
+    Orderref_int: int = 0
+    UserID:int=0
+    OrderWeight:float=0.0
+    UserEmail:str=''
+    FirstName:str=''
+    SecondName:str=''
+    OrderTotal:float=0.0
+    OrderNote:str=''
+    SubTotalPrice:float=0.0
+    OrderToken:str =''
+    OrderTotalDiscounts:float=0.0
+    OrderTotalLineItemPrice:float=0.0
+    OrderDate:str=''
+    OrderPhone:str=''
+    un_OrderNumber:str=''
+    OrderType:str=''
+    OrderTotalTax:float=0.0
+    for key,val in j.items():
         print('key=' + key)
         if key=='browser_ip':
             pass
@@ -57,15 +83,17 @@ def get_all_orders():
         elif key == 'device_id':
             pass
         elif key == 'email':
-            pass
+            UserEmail=val
         elif key == 'financial_status':
             pass
+        elif key=='first_name':
+            FirstName=val
         elif key == 'fulfillment_status':
             pass
         elif key == 'gateway':
             pass
         elif key == 'id':
-            pass
+            shopify_Order_id=val
         elif key == 'landing_site':
             pass
         elif key == 'landing_site_ref':
@@ -73,33 +101,35 @@ def get_all_orders():
         elif key == 'location_id':
             pass
         elif key == 'name':
-            pass
+            Orderref_str=val
         elif key == 'note':
-            pass
+            OrderNote=val
         elif key == 'number':
-            pass
+            un_OrderNumber=str(val)
         elif key == 'order_number':
-            pass
+            Orderref_int=val
         elif key == 'order_status_url':
             pass
         elif key == 'phone':
-            pass
+            OrderPhone=str(val)
         elif key == 'processed_at':
-            pass
+            OrderDate=str(val)
         elif key == 'processing_method':
             pass
         elif key == 'reference':
             pass
         elif key == 'referring_site':
             pass
+        elif key=='last_name':
+            SecondName=str(val)
         elif key == 'source_identifier':
             pass
         elif key == 'source_name':
-            pass
+            un_OrderNumber=str(un_OrderNumber)
         elif key == 'source_url':
             pass
         elif key == 'subtotal_price':
-            pass
+            SubTotalPrice=float(val)
         elif key == 'tags':
             pass
         elif key == 'taxes_included':
@@ -107,23 +137,23 @@ def get_all_orders():
         elif key == 'test':
             pass
         elif key == 'token':
-            pass
+            OrderToken=str(val)
         elif key == 'total_discounts':
-            pass
+            OrderTotalDiscounts=float(val)
         elif key == 'total_line_items_price':
-            pass
+            OrderTotalLineItemPrice=float(val)
         elif key == 'total_price':
-            pass
+            OrderTotal=float(val)
         elif key == 'total_price_usd':
             pass
         elif key == 'total_tax':
-            pass
+            OrderTotalTax=float(val)
         elif key == 'total_weight':
-            pass
+            OrderWeight=float(val)
         elif key == 'updated_at':
             pass
         elif key == 'user_id':
-            pass
+            UserID=int(val)
         elif key == '':
             pass
         elif key == '':
@@ -160,7 +190,7 @@ def get_all_orders():
             pass
         elif key == '':
             pass
-
+    print('hell yea')
 get_all_products()
 get_all_orders()
 
