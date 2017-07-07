@@ -18,6 +18,23 @@ def de_serialized(encoded_array):
     print(data)
     return data
 
+def get_sample_order():
+    import pandas as pd
+    import pymysql
+    from sqlalchemy import create_engine
+
+    # engine = create_engine('mysql+pymysql://lh4:approved2010@10.1.1.6/myticket')
+    engine = create_engine('mysql+pymysql://root:v#jPJ2Eb&Shv@46.37.182.203/approvedfood')
+
+    datatable = pd.read_sql_query(
+        'SELECT `ID`,`ITEMS` FROM `orders` WHERE `ID`=4627532',
+        engine)
+    datatable.head()
+    t = pd.DataFrame(datatable)
+    for index, row in t.iterrows():
+        orderitems= row['ITEMS']
+        d=de_serialized(orderitems)
+        print(orderitems)
 
 def get_all_orders():
     'this function gets all the orders'
@@ -191,6 +208,7 @@ def get_all_orders():
         elif key == '':
             pass
     print('hell yea')
+get_sample_order()
 get_all_products()
 get_all_orders()
 
