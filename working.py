@@ -4,6 +4,7 @@ from slugify import slugify
 import shopify
 from shopify import Product
 from shopify import Variant
+import Core_Shopify
 
 
 def create_pricing_dict(price):
@@ -72,7 +73,7 @@ from sqlalchemy import create_engine
 #engine = create_engine('mysql+pymysql://lh4:approved2010@10.1.1.6/myticket')
 engine = create_engine('mysql+pymysql://root:v#jPJ2Eb&Shv@46.37.182.203/approvedfood')
 
-datatable = pd.read_sql_query('SELECT products.ID, products.LONG_DESC, products.STOCK_LEVEL, products.FULL_NAME, products.CATS, products.PRICE, products.RRP_PRICE, products.BB_DATE, products.name_mid, products.brand, products.promo_prefix, products.promo_suffix, products.SHIP_WEIGHT, products.weight2, products.BARCODE, products.PRICE_TIERS, products.deal_text, products.IMAGES, products.PRICE_SALE FROM approvedfood.products products WHERE products.STOCK_LEVEL > 10000', engine)
+datatable = pd.read_sql_query('SELECT products.ID, products.LONG_DESC, products.STOCK_LEVEL, products.FULL_NAME, products.CATS, products.PRICE, products.RRP_PRICE, products.BB_DATE, products.name_mid, products.brand, products.promo_prefix, products.promo_suffix, products.SHIP_WEIGHT, products.weight2, products.BARCODE, products.PRICE_TIERS, products.deal_text, products.IMAGES, products.PRICE_SALE FROM approvedfood.products products WHERE products.STOCK_LEVEL > 5000', engine)
 datatable.head()
 t = pd.DataFrame(datatable)
 for index, row in t.iterrows():
@@ -84,12 +85,13 @@ for index, row in t.iterrows():
     new_product.product_type = "Snowboard"
     new_product.body_html=row['LONG_DESC']
     new_product.vendor = row['brand']
+    im1=str(row['IMAGES'])
+    im2= Core_Shopify.de_serialized(im1)
+    filep= im2[0][b'file'].decode("utf-8")
+    pt1 =  Core_Shopify.de_serialized(str(row['PRICE_TIERS']))
 
 
-    #print(new_product.variant)
-    repn=str(row['brand'] + ' ' + row['name_mid'] + ' ' + row['weight2']).replace(' ','_')
-    image_filename = "http://fthumb.approvedfood.co.uk/thumbs/75/1000/296/1/src_images/" + repn + ".jpg"
-    #image_filename = "http://fthumb.approvedfood.co.uk/thumbs/75/1000/296/1/src_images/hersheys_creamy_milk_chocolate_with_almonds_43g.jpg"
+    image_filename = "http://fthumb.approvedfood.co.uk/thumbs/75/1000/1000/1/src_images/" + str(filep)
 
     image1 = shopify.Image()
     image1.src = image_filename
