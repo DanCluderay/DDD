@@ -45,5 +45,62 @@ def create_web_items(itemsdictarray):
     #build up the ID, qty and price variable
     totalLines= len(itemsdictarray)
     firstpart='a:' + str(totalLines) + ':{' #total number of items
+    linecounter:int=0
     for dict_item in itemsdictarray:
-        pass
+
+        paramnumbers:int=15
+        line_inst = 'i:' + str(linecounter) + ';a:' + str(paramnumbers) + ':'# example i:0;a:15:
+        midpart:str=''
+        for lineparam in range(0,paramnumbers):
+            productid:int=0
+            catid:int=0
+            qty:int=0
+            productname:str=''
+            weight:float=0.00
+            rrp:str=''
+            if lineparam==0:
+                #productID
+                midpart='s:2:\"id\";i:' + str(productid)
+            elif lineparam == 1:
+                # catID
+                midpart = midpart.__add__(';s:6:"cat_id";i:' + str(catid))
+            elif lineparam == 2:
+                # qty
+                midpart = midpart.__add__(';s:3:"qty";i:' + str(qty))
+            elif lineparam == 3:
+                # weight
+                weightlen=len(weight)
+                midpart = midpart.__add__(';s:6:"weight";s:' + str(weightlen) + ':\"' + str(weight) + ')\"')
+            elif lineparam == 4:
+                #name
+                productnamelen=len(productname)
+                midpart = midpart.__add__(';s:4:"name";s:' + str(productnamelen) + ':\"' + str(productname) + ')\"')
+
+            elif lineparam == 5:
+                #rrp s:3:"rrp";s:4:"0.85"
+                rrplen=len(rrp)
+                midpart = midpart.__add__(';s:3:"rrp";s:' + str(rrplen) + ':\"' + str(rrp) + ')\"')
+            elif lineparam == 6:
+                pass
+            elif lineparam == 7:
+                pass
+            elif lineparam == 8:
+                pass
+            elif lineparam == 9:
+                pass
+            elif lineparam == 10:
+                pass
+            elif lineparam == 11:
+                pass
+            elif lineparam == 12:
+                pass
+            elif lineparam == 13:
+                pass
+            elif lineparam == 14:
+                pass
+
+
+
+
+
+    linecounter+=1
