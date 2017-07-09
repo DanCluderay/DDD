@@ -89,7 +89,7 @@ for index, row in t.iterrows():
     im2= Core_Shopify.de_serialized(im1)
     filep= im2[0][b'file'].decode("utf-8")
     pt1 =  Core_Shopify.de_serialized(str(row['PRICE_TIERS']))
-
+    backagain=Core_Shopify.serialize(im2)
 
     image_filename = "http://fthumb.approvedfood.co.uk/thumbs/75/1000/1000/1/src_images/" + str(filep)
 
