@@ -61,6 +61,13 @@ def create_web_items(itemsdictarray):
             bbedate:str='1970-01-01 00:00:00'
             vatable:str='0'
             vattable_rate:str=''
+            shipping_discount:str=''
+            price_total:float=0.00
+            price:float=0.00
+            price_novat:float=0.00
+            price_vattotal:float=0.00
+            applied_price_total:float=0.00
+            applied_shipping_discount:float=0.00
             if lineparam==0:
                 #productID
                 midpart='s:2:\"id\";i:' + str(productid)
@@ -96,20 +103,49 @@ def create_web_items(itemsdictarray):
                 vatvalueratelen=len(vattable_rate)
                 midpart = midpart.__add__(';s:13:\"vattable_rate\";s:' + str(vatvalueratelen) + ':\"' + str(vattable_rate) + ')\"')
             elif lineparam == 9:
-                pass
+                #s:9:"blacklist";s:0:""
+                midpart = midpart.__add__(';s:9:\"blacklist\";s:0:\"\"')
             elif lineparam == 10:
-                pass
+                #;s:17:"discount_template";N
+                midpart = midpart.__add__(';s:17:\"discount_template\";N')
             elif lineparam == 11:
-                pass
+                #;s:17:"shipping_discount";s:4:"0.00"
+                shippingdiscountlen=len(shipping_discount)
+                midpart = midpart.__add__(';s:17:\"shipping_discount\";s:' + str(shippingdiscountlen) + ':\"' + str(shipping_discount) + ')\"')
             elif lineparam == 12:
-                pass
+                #s:6:"fb_qty";i:0
+                midpart = midpart.__add__(';s:6:\"fb_qty\";i:0')
             elif lineparam == 13:
-                pass
+                #s:6:"biz_id";s:1:"1"
+                midpart = midpart.__add__(';s:6:\"biz_id\";s:1:\"1\"')
             elif lineparam == 14:
-                pass
-
-
-
-
+                #;s:11:"price_total";d:0.25
+                midpart = midpart.__add__(';s:11:\"price_total\";d:' + str(price_total))
+            elif lineparam == 15:
+                #s:5:"price";d:0.25
+                midpart = midpart.__add__(';s:5:\"price\";d:' + str(price))
+            elif lineparam == 16:
+                #;s:11:"price_novat";d:0.20999999999999999
+                midpart = midpart.__add__(';s:11:\"price_novat\";d:' + str(price_novat))
+            elif lineparam == 17:
+                #;s:14:"price_vattotal";d:0.040000000000000001
+                midpart = midpart.__add__(';s:14:\"price_vattotal\";d:' + str(price_vattotal))
+            elif lineparam == 18:
+                #a:8:{s:5:"range";s:2:"4+";s:4:"save";s:4:"0.04";s:8:"qty_from";i:4;s:6:"qty_to";i:0;s:3:"vat";d:0.25;s:5:"novat";d:0.20999999999999999;s:11:"vat_applied";d:0.040000000000000001;s:3:"qty";i:4;}
+                pricet:str='a:8:{s:5:\"range\";s:2:\"4+\";s:4:\"save\";s:4:\"0.04\";s:8:\"qty_from\";i:4;s:6:\"qty_to\";i:0;s:3:\"vat\";d:0.25;s:5:\"novat\";d:0.20999999999999999;s:11:\"vat_applied\";d:0.040000000000000001;s:3:\"qty\";i:4;}'
+                midpart = midpart.__add__(pricet)
+            elif lineparam == 19:
+                #s:11:"applied_qty";i:4
+                applied_qty:str='s:11:\"applied_qty\";i:4'
+                midpart = midpart.__add__(applied_qty)
+            elif lineparam == 20:
+                #;s:19:"applied_price_total";d:0.25
+                midpart = midpart.__add__(';s:19:\"applied_price_total\";d:' + str(applied_price_total))
+            elif lineparam == 21:
+                #s:25:"applied_shipping_discount";s:4:"0.00";}
+                applied_shipping_discountlen = len(applied_shipping_discount)
+                midpart = midpart.__add__(';s:17:\"shipping_discount\";s:' + str(applied_shipping_discountlen) + ':\"' + str(applied_shipping_discount) + ')\";}')
+        line_inst = line_inst.__add__(midpart)
+        line_inst = line_inst.__add__('}')
 
     linecounter+=1
