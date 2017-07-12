@@ -57,35 +57,44 @@ def create_web_items(itemsdictarray):
             qty:int=0
             productname:str=''
             weight:float=0.00
-            rrp:str=''
+            rrp:str='0.00'
+            bbedate:str='1970-01-01 00:00:00'
+            vatable:str='0'
+            vattable_rate:str=''
             if lineparam==0:
                 #productID
                 midpart='s:2:\"id\";i:' + str(productid)
             elif lineparam == 1:
                 # catID
-                midpart = midpart.__add__(';s:6:"cat_id";i:' + str(catid))
+                midpart = midpart.__add__(';s:6:\"cat_id\";i:' + str(catid))
             elif lineparam == 2:
                 # qty
-                midpart = midpart.__add__(';s:3:"qty";i:' + str(qty))
+                midpart = midpart.__add__(';s:3:\"qty\";i:' + str(qty))
             elif lineparam == 3:
                 # weight
                 weightlen=len(weight)
-                midpart = midpart.__add__(';s:6:"weight";s:' + str(weightlen) + ':\"' + str(weight) + ')\"')
+                midpart = midpart.__add__(';s:6:\"weight\";s:' + str(weightlen) + ':\"' + str(weight) + ')\"')
             elif lineparam == 4:
                 #name
                 productnamelen=len(productname)
-                midpart = midpart.__add__(';s:4:"name";s:' + str(productnamelen) + ':\"' + str(productname) + ')\"')
+                midpart = midpart.__add__(';s:4:\"name\";s:' + str(productnamelen) + ':\"' + str(productname) + ')\"')
 
             elif lineparam == 5:
                 #rrp s:3:"rrp";s:4:"0.85"
                 rrplen=len(rrp)
-                midpart = midpart.__add__(';s:3:"rrp";s:' + str(rrplen) + ':\"' + str(rrp) + ')\"')
+                midpart = midpart.__add__(';s:3:\"rrp\";s:' + str(rrplen) + ':\"' + str(rrp) + ')\"')
             elif lineparam == 6:
-                pass
+                #s:7:"bb_date";s:19:"2017-07-12 00:00:00"
+                bbelen=len(bbedate)
+                midpart = midpart.__add__(';s:7:\"bb_date\";s:' + str(bbelen) + ':\"' + str(bbedate) + ')\"')
             elif lineparam == 7:
-                pass
+                #s:8:"vattable";s:1:"1"
+                vatablelen=len(vatable)
+                midpart = midpart.__add__(';s:8:\"vattable\";s:' + str(vatablelen) + ':\"' + str(vatable) + ')\"')
             elif lineparam == 8:
-                pass
+                #s:13:"vattable_rate";s:4:"1.00"
+                vatvalueratelen=len(vattable_rate)
+                midpart = midpart.__add__(';s:13:\"vattable_rate\";s:' + str(vatvalueratelen) + ':\"' + str(vattable_rate) + ')\"')
             elif lineparam == 9:
                 pass
             elif lineparam == 10:
