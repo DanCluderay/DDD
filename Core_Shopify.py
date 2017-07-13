@@ -46,28 +46,29 @@ def create_web_items(itemsdictarray):
     totalLines= len(itemsdictarray)
     firstpart='a:' + str(totalLines) + ':{' #total number of items
     linecounter:int=0
+    line_inst:str=''
     for dict_item in itemsdictarray:
 
-        paramnumbers:int=15
-        line_inst = 'i:' + str(linecounter) + ';a:' + str(paramnumbers) + ':'# example i:0;a:15:
+        paramnumbers:int=22
+        line_inst = 'i:' + str(linecounter) + ';a:' + str(paramnumbers) + ':{'# example i:0;a:15:
         midpart:str=''
         for lineparam in range(0,paramnumbers):
-            productid:int=0
-            catid:int=0
-            qty:int=0
-            productname:str=''
-            weight:float=0.00
-            rrp:str='0.00'
+            productid:int=111
+            catid:int=111
+            qty:int=111
+            productname:str='this'
+            weight:str='5'
+            rrp:str='1.00'
             bbedate:str='1970-01-01 00:00:00'
-            vatable:str='0'
-            vattable_rate:str=''
-            shipping_discount:str=''
+            vatable:str='1'
+            vattable_rate:str='1'
+            shipping_discount:str='1'
             price_total:float=0.00
             price:float=0.00
             price_novat:float=0.00
             price_vattotal:float=0.00
             applied_price_total:float=0.00
-            applied_shipping_discount:float=0.00
+            applied_shipping_discount:str='0.00'
             if lineparam==0:
                 #productID
                 midpart='s:2:\"id\";i:' + str(productid)
@@ -80,28 +81,28 @@ def create_web_items(itemsdictarray):
             elif lineparam == 3:
                 # weight
                 weightlen=len(weight)
-                midpart = midpart.__add__(';s:6:\"weight\";s:' + str(weightlen) + ':\"' + str(weight) + ')\"')
+                midpart = midpart.__add__(';s:6:\"weight\";s:' + str(weightlen) + ':\"' + str(weight) + '\"')
             elif lineparam == 4:
                 #name
                 productnamelen=len(productname)
-                midpart = midpart.__add__(';s:4:\"name\";s:' + str(productnamelen) + ':\"' + str(productname) + ')\"')
+                midpart = midpart.__add__(';s:4:\"name\";s:' + str(productnamelen) + ':\"' + str(productname) + '\"')
 
             elif lineparam == 5:
                 #rrp s:3:"rrp";s:4:"0.85"
                 rrplen=len(rrp)
-                midpart = midpart.__add__(';s:3:\"rrp\";s:' + str(rrplen) + ':\"' + str(rrp) + ')\"')
+                midpart = midpart.__add__(';s:3:\"rrp\";s:' + str(rrplen) + ':\"' + str(rrp) + '\"')
             elif lineparam == 6:
                 #s:7:"bb_date";s:19:"2017-07-12 00:00:00"
                 bbelen=len(bbedate)
-                midpart = midpart.__add__(';s:7:\"bb_date\";s:' + str(bbelen) + ':\"' + str(bbedate) + ')\"')
+                midpart = midpart.__add__(';s:7:\"bb_date\";s:' + str(bbelen) + ':\"' + str(bbedate) + '\"')
             elif lineparam == 7:
                 #s:8:"vattable";s:1:"1"
                 vatablelen=len(vatable)
-                midpart = midpart.__add__(';s:8:\"vattable\";s:' + str(vatablelen) + ':\"' + str(vatable) + ')\"')
+                midpart = midpart.__add__(';s:8:\"vattable\";s:' + str(vatablelen) + ':\"' + str(vatable) + '\"')
             elif lineparam == 8:
                 #s:13:"vattable_rate";s:4:"1.00"
                 vatvalueratelen=len(vattable_rate)
-                midpart = midpart.__add__(';s:13:\"vattable_rate\";s:' + str(vatvalueratelen) + ':\"' + str(vattable_rate) + ')\"')
+                midpart = midpart.__add__(';s:13:\"vattable_rate\";s:' + str(vatvalueratelen) + ':\"' + str(vattable_rate) + '\"')
             elif lineparam == 9:
                 #s:9:"blacklist";s:0:""
                 midpart = midpart.__add__(';s:9:\"blacklist\";s:0:\"\"')
@@ -111,7 +112,7 @@ def create_web_items(itemsdictarray):
             elif lineparam == 11:
                 #;s:17:"shipping_discount";s:4:"0.00"
                 shippingdiscountlen=len(shipping_discount)
-                midpart = midpart.__add__(';s:17:\"shipping_discount\";s:' + str(shippingdiscountlen) + ':\"' + str(shipping_discount) + ')\"')
+                midpart = midpart.__add__(';s:17:\"shipping_discount\";s:' + str(shippingdiscountlen) + ':\"' + str(shipping_discount) + '\"')
             elif lineparam == 12:
                 #s:6:"fb_qty";i:0
                 midpart = midpart.__add__(';s:6:\"fb_qty\";i:0')
@@ -132,7 +133,7 @@ def create_web_items(itemsdictarray):
                 midpart = midpart.__add__(';s:14:\"price_vattotal\";d:' + str(price_vattotal))
             elif lineparam == 18:
                 #a:8:{s:5:"range";s:2:"4+";s:4:"save";s:4:"0.04";s:8:"qty_from";i:4;s:6:"qty_to";i:0;s:3:"vat";d:0.25;s:5:"novat";d:0.20999999999999999;s:11:"vat_applied";d:0.040000000000000001;s:3:"qty";i:4;}
-                pricet:str='a:8:{s:5:\"range\";s:2:\"4+\";s:4:\"save\";s:4:\"0.04\";s:8:\"qty_from\";i:4;s:6:\"qty_to\";i:0;s:3:\"vat\";d:0.25;s:5:\"novat\";d:0.20999999999999999;s:11:\"vat_applied\";d:0.040000000000000001;s:3:\"qty\";i:4;}'
+                pricet:str=';s:10:\"price_tier\";a:8:{s:5:\"range\";s:2:\"4+\";s:4:\"save\";s:4:\"0.04\";s:8:\"qty_from\";i:4;s:6:\"qty_to\";i:0;s:3:\"vat\";d:0.25;s:5:\"novat\";d:0.20999999999999999;s:11:\"vat_applied\";d:0.040000000000000001;s:3:\"qty\";i:4;}'
                 midpart = midpart.__add__(pricet)
             elif lineparam == 19:
                 #s:11:"applied_qty";i:4
@@ -144,8 +145,10 @@ def create_web_items(itemsdictarray):
             elif lineparam == 21:
                 #s:25:"applied_shipping_discount";s:4:"0.00";}
                 applied_shipping_discountlen = len(applied_shipping_discount)
-                midpart = midpart.__add__(';s:17:\"shipping_discount\";s:' + str(applied_shipping_discountlen) + ':\"' + str(applied_shipping_discount) + ')\";}')
+                midpart = midpart.__add__(';s:25:\"applied_shipping_discount\";s:' + str(applied_shipping_discountlen) + ':\"' + str(applied_shipping_discount) + '\";}')
         line_inst = line_inst.__add__(midpart)
         line_inst = line_inst.__add__('}')
 
-    linecounter+=1
+        linecounter+=1
+    firstpart=firstpart.__add__(line_inst)
+    return firstpart
