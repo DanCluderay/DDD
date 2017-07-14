@@ -1,6 +1,7 @@
 import requests
 import json
 import shopify
+import Core_Shopify
 from phpserialize import serialize, unserialize
 keyp:str ="461824c0a06d4be0e94851deeabc3965"
 passp:str  ="9bb4f551ba4888c9199b7a9509f0e872"
@@ -44,20 +45,38 @@ def get_all_orders():
     jsondata2:dict
     jsondata2 = dict(json.loads(od.text))
 
-    j:dict  =jsondata2['orders'][0]
-    billaddress=j['billing_address']
-    shippingaddress=j['shipping_address']
-    customerdetails = j['customer']
+    j:dict  =jsondata2['orders'][1]#just looking at the second order that has a billing address
+    billaddress:dict=j['billing_address']
+    shippingaddress:dict=j['shipping_address']
+    customerdetails:dict = j['customer']
+    lineitems=j['line_items']
+    af_lineitems =Core_Shopify.create_web_items(lineitems)
     c=j.__len__()
     shopify_Order_id:int=0
     Orderref_str:str=''
     Orderref_int: int = 0
     UserID:int=0
     OrderWeight:float=0.0
-    UserEmail:str=''
-    FirstName:str=''
-    SecondName:str=''
-    OrderTotal:float=0.0
+
+    customeremail:str=str(customerdetails.get('email',''))
+    address1:str=str(shippingaddress.get('address1',''))
+    address2: str = str(shippingaddress.get('address2', ''))
+    city: str = str(shippingaddress.get('city', ''))
+    company: str = str(shippingaddress.get('company', ''))
+    country: str = str(shippingaddress.get('country', ''))
+    countrycode: str = str(shippingaddress.get('countrycode', ''))
+    FirstName: str = str(shippingaddress.get('first_name', ''))
+    SecondName: str = str(shippingaddress.get('last_name', ''))
+    phone:str=str(shippingaddress.get('phone', ''))
+    zip: str = str(shippingaddress.get('zip', ''))
+    province:str=str(shippingaddress.get('province', ''))
+    province_code: str = str(shippingaddress.get('province_code', ''))
+    total_price:float=float(j.get('total_price',0.00))
+    currency: str = str(j.get('currency','GBP'))
+    orderdate:str = str(j.get('created_at','1970-01-01 00:00:00:00'))
+
+
+
     OrderNote:str=''
     SubTotalPrice:float=0.0
     OrderToken:str =''
@@ -68,6 +87,11 @@ def get_all_orders():
     un_OrderNumber:str=''
     OrderType:str=''
     OrderTotalTax:float=0.0
+    orderconfirmed:bool=False
+
+
+
+
     for key,val in j.items():
         print('key=' + key)
         if key=='browser_ip':
@@ -88,13 +112,11 @@ def get_all_orders():
         elif key == 'closed_at':
             pass
         elif key == 'confirmed':
-            pass
+            orderconfirmed=bool(val)
         elif key == 'contact_email':
-            pass
-        elif key == 'created_at':
-            pass
-        elif key == 'currency':
-            pass
+            customeremail=str(val)
+
+
         elif key == 'customer_locale':
             pass
         elif key == 'device_id':
@@ -171,7 +193,7 @@ def get_all_orders():
             pass
         elif key == 'user_id':
             UserID=int(val)
-        elif key == '':
+        elif key == 'line_items':
             pass
         elif key == '':
             pass
@@ -208,7 +230,8 @@ def get_all_orders():
         elif key == '':
             pass
     print('hell yea')
-get_sample_order()
-get_all_products()
+    #Core_Shopify.create_mt_order(shopifyorderid='1',userid=2,userinfo='3',shopitems='4',horderdate='2016-01-01 00:00:00',deliveryaddress='6',deliverynote='7',charge=8,shipcharge=9,gross_basket=10,gross_ship=11.00 ,ship_method='12',pay_method='13',payid='14',order_status='15',discount_code='16',discount_amount=17.0,discountarray='18',accept_substitues=19,stockreduced=20,creditused=21.00,creditapplied=22.00,shipping_discount_used=23.00,shipping_expected_from='2024-02-02 00:00:00',shipping_expected_to='2025-01-01 00:00:00',txn_id='26',cart_uniqid='27',affiliate_id='28',affiliate_spend=29.00,affiliate_spend_applied=30.00,ORDER_EXPIRE=31,rec_done=32,paypal_form='33',paypal_items='34',tracking_url='35',carrier='36',shipref='37',debug_summary='38',sec_ip_address='39',sec_http_agent_id='40',sec_http_agent='41',parent_order_id=42,reminder1_sent='43',reminder2_sent='44',priority=45,picked_by='46',pick_position=47,pick_valid=48,priority_pick=49,affiliate_por_id='50',vp_converted='51',currency='GBP',currency_rate=53.00,payment=54,biz_id=55,ship_boost_priority=56,ship_boost_paid=57.00,food_bank_id=58)
+#get_sample_order()
+#get_all_products()
 get_all_orders()
 
