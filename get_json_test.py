@@ -59,6 +59,7 @@ def get_all_orders():
     OrderWeight:float=0.0
 
     customeremail:str=str(customerdetails.get('email',''))
+    shopify_customer_id:str(customerdetails.get('id',''))
     address1:str=str(shippingaddress.get('address1',''))
     address2: str = str(shippingaddress.get('address2', ''))
     city: str = str(shippingaddress.get('city', ''))
@@ -89,9 +90,8 @@ def get_all_orders():
     OrderTotalTax:float=0.0
     orderconfirmed:bool=False
 
-
-
-
+    webUserID=Core_Shopify.create_web_user(shopifyuserid=shopify_customer_id, firstname=FirstName,secondname=SecondName,useremail=customeremail,line1=address1,line2=address2,city=city,phone=phone)
+    print(webUserID)
     for key,val in j.items():
         print('key=' + key)
         if key=='browser_ip':
