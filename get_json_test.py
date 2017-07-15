@@ -7,6 +7,9 @@ keyp:str ="461824c0a06d4be0e94851deeabc3965"
 passp:str  ="9bb4f551ba4888c9199b7a9509f0e872"
 urlstart:str ="https://dans-daily-deals.myshopify.com/admin"
 
+def dol():
+    Core_Shopify.download_order(10)
+
 def get_latest_orders():
     o=requests.get(urlstart + '/orders.json?updated_at_min=2017-07-14 15:57:11 EDT -04:00',auth=(keyp,passp))
     print(o)
@@ -107,5 +110,6 @@ def get_all_orders():
 #get_sample_order()
 #get_all_products()
 #get_all_orders()
-get_latest_orders()
+#get_latest_orders()
+dol()
 

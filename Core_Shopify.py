@@ -21,7 +21,11 @@ def download_order(orderid=0):
 
     jsondata2: dict
     jsondata2 = dict(json.loads(od.text))
-
+    if len(jsondata2['orders'])==0:
+        '''there is no order
+        '''
+        #TODO some sort of exception handeling if there is not order
+        return
     j: dict = jsondata2['orders'][0]  # just looking at the second order that has a billing address
 
     if bool(j.get('confirmed', 'False')) == False:
@@ -75,19 +79,26 @@ def download_order(orderid=0):
                                              secondname=SecondName, useremail=customeremail, line1=address1,
                                              line2=address2, phone=phone, marketingok=marketingok_val)
     print(webUserID)
-
+    #TODO Order weight missing
+    #TODO date formating function
     create_web_order(shopifyorderid=shopify_Order_id, userid=webUserID, shopitems=af_lineitems,
                                   horderdate='2016-01-01 00:00:00', deliveryaddress=address1,
                                   deliverynote=order_note, charge=total_price, shipcharge=0,
                                   gross_basket=basket_price, gross_ship=0.00, ship_method='New', txn_id='26',
                                   currency=currency, biz_id=10)
+    #TODO record the latest order downloaded in DB
+    #todo update the order status in shopify - notify customer
 
-
+'''
 def creatwebhook():
 
     wh_str='/webhooks.json { "webhook": { "topic": "orders\/create", "address": "http:\/\/dans-daily-deals.myshopify.com\/", "format": "json" } }'
     pd = requests.get(urlstart + wh_str,auth=(keyp,passp))
     print(pd)
+
+
+'''
+
 def get_all_products():
     pd=shopify.Product()
     pd = requests.get(urlstart + "/products/count.json",auth=(keyp,passp))
