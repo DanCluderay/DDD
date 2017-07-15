@@ -12,6 +12,82 @@ from phpserialize import serialize, unserialize
 keyp:str ="461824c0a06d4be0e94851deeabc3965"
 passp:str  ="9bb4f551ba4888c9199b7a9509f0e872"
 urlstart:str ="https://dans-daily-deals.myshopify.com/admin"
+
+def download_order(orderid=0):
+    if orderid==0:
+        return #cant do anything here
+
+    od = requests.get(urlstart + "/orders.json?ids=" + str(orderid), auth=(keyp, passp))
+
+    jsondata2: dict
+    jsondata2 = dict(json.loads(od.text))
+
+    j: dict = jsondata2['orders'][0]  # just looking at the second order that has a billing address
+
+    if bool(j.get('confirmed', 'False')) == False:
+        return
+
+    billaddress: dict = j['billing_address']
+    shippingaddress: dict = j['shipping_address']
+    customerdetails: dict = j['customer']
+    lineitems = j['line_items']
+    af_lineitems = create_web_items(lineitems)
+    c = j.__len__()
+    shopify_Order_id: int = int(j.get('id', 0))
+    int_shopify_h_order_number: int(j.get('order_number', 0))
+    str_shopify_h_order_number: str = str(j.get('name', ''))
+
+    OrderWeight: float = float(j.get('total_weight', 0.00))
+
+    customeremail: str = str(customerdetails.get('email', ''))
+    shopify_customer_id: str = (customerdetails.get('id', ''))
+    address1: str = str(shippingaddress.get('address1', ''))
+    address2: str = str(shippingaddress.get('address2', ''))
+    city: str = str(shippingaddress.get('city', ''))
+    company: str = str(shippingaddress.get('company', ''))
+    country: str = str(shippingaddress.get('country', ''))
+    countrycode: str = str(shippingaddress.get('countrycode', ''))
+    FirstName: str = str(shippingaddress.get('first_name', ''))
+    SecondName: str = str(shippingaddress.get('last_name', ''))
+    phone: str = str(shippingaddress.get('phone', ''))
+    zip: str = str(shippingaddress.get('zip', ''))
+    province: str = str(shippingaddress.get('province', ''))
+    province_code: str = str(shippingaddress.get('province_code', ''))
+    total_price: float = float(j.get('total_price', 0.00))
+    currency: str = str(j.get('currency', 'GBP'))
+    orderdate: str = str(j.get('processed_at', '1970-01-01 00:00:00:00'))
+
+    order_note: str = str(j.get('note', ''))
+    basket_price: float = float(j.get('total_line_item_price', 0.00))
+    OrderToken: str = str(shippingaddress.get('token', ''))
+    OrderTotalDiscounts: float = float(j.get('total_discounts', 0.00))
+
+    OrderTotalTax: float = float(j.get('total_tax', 0.00))
+
+    marketingokbool: bool = j['buyer_accepts_marketing']
+    marketingok_val: str = '0'
+    if marketingokbool == True:
+        marketingok_val = '1'
+    else:
+        marketingok_val = '0'
+
+    webUserID = create_web_user(shopifyuserid=shopify_customer_id, firstname=FirstName,
+                                             secondname=SecondName, useremail=customeremail, line1=address1,
+                                             line2=address2, phone=phone, marketingok=marketingok_val)
+    print(webUserID)
+
+    create_web_order(shopifyorderid=shopify_Order_id, userid=webUserID, shopitems=af_lineitems,
+                                  horderdate='2016-01-01 00:00:00', deliveryaddress=address1,
+                                  deliverynote=order_note, charge=total_price, shipcharge=0,
+                                  gross_basket=basket_price, gross_ship=0.00, ship_method='New', txn_id='26',
+                                  currency=currency, biz_id=10)
+
+
+def creatwebhook():
+
+    wh_str='/webhooks.json { "webhook": { "topic": "orders\/create", "address": "http:\/\/dans-daily-deals.myshopify.com\/", "format": "json" } }'
+    pd = requests.get(urlstart + wh_str,auth=(keyp,passp))
+    print(pd)
 def get_all_products():
     pd=shopify.Product()
     pd = requests.get(urlstart + "/products/count.json",auth=(keyp,passp))
@@ -49,27 +125,28 @@ def get_mt_dataset(sqlstring):
         pass
     return dt
 
-def create_web_user(shopifyuserid='',username='',useremail='',displayname='',title='', firstname='', secondname='', line1='', line2 ='', postcode='', town='', region='', company='',countrycode='0',phone='',mobile='',hearaboutus='', regdate='2000-01-01 00:00:00'):
+def create_web_user(shopifyuserid='',username='',useremail='',displayname='',title='', firstname='', secondname='', line1='', line2 ='', postcode='', town='', region='', company='',countrycode='0',phone='',mobile='',hearaboutus='', regdate='2000-01-01 00:00:00',marketingok=0):
     '''check to see if a the customer'''
-    userdataid:str=''
+
     userid_sql = str('SELECT `ID` FROM `users` WHERE `user_data`=\'' + str(shopifyuserid) + '\'')
     dt = get_web_dataset(userid_sql)
-    newcustomerid = int(dt.iloc[0]['ID'])
-    if newcustomerid==0:
+    newcustomerid=0
+    if dt.empty==True:
         userdataid=uuid.uuid4()
-        sqlstring:str='INSERT INTO `users` (`ID`, `USER_NAME`, `USER_EMAIL`, `USER_PASS`, `USER_TYPE`, `DISPLAY_NAME`, `logged_in`, `DATE`, `TITLE`, `USER_FIRSTNAME`, `USER_SURNAME`, `LINE1`, `LINE2`, `POSTCODE`, `TOWN`, `region`, `company`, `COUNTRY`, `PHONE`, `MOBILE_PHONE`, `LISTS`, `STORE`, `SAGE_REF`, `HEAR_ABOUT_US`, `CREDIT`, `MARKETING_OK`, `referee_name`, `date_registered`, `registration_inbound_url`, `af_commissionlevel`, `affiliate_id`, `referer_id`, `is_affiliate`, `affiliate_status`, `postcode2`, `affiliate_credit`, `verified`, `strike_count`, `Deal_count`, `pay_google`, `default_shipmethod`, `fb_userid`, `fb_username`, `fb_blob`, `prefs`, `dupe_reason`, `dupe_id`, `per_item_limit`, `can_use_payflow`, `js_callback`, `user_data`, `user_data_id`, `ip_address`, `http_agent`, `http_accept`, `business_type`, `business_vat`, `business_regnum`, `business_size`, `business_turnover`, `order_count`, `user_email_checked`, `user_email_result`, `email_sent`, `email_open`, `email_bounce`, `email_read`, `email_deleted`, `email_bounce_reason`, `activation_key`, `activation_expires`, `secret_q`, `secret_a`, `nonce`, `interfinancial_params`, `reminder1_sent`, `reminder2_sent`, `CHECKOUT_REMINDERS`, `bypass_cc_enrolled`, `affiliate_scheme`, `affiliate_por_id`, `is_enabled`, `is_cash_affiliate`, `biz_id`, `mail_priority`, `access_level`) VALUES (NULL, \'' + username + '\', \'' + useremail + '\', \'\', \'0\', \'' + displayname + '\', \'2000-01-01 00:00:00\', CURRENT_TIMESTAMP, \'' + title + '\', \'' + firstname + '\', \'' + secondname + '\', \'' + line1 + '\', \'' + line2 + '\', \'' + postcode + '\', \'' + town + '\', \'' + region + '\', \'' + company + '\', \'' + countrycode + '\', \'' + phone + '\', \'' + mobile + '\', NULL, \'1\', \'NONE\', \'' + hearaboutus + '\', \'0.00\', \'1\', \'Shopify\', \'' + regdate + '\', \'reg inbound url\', \'\', \'\', \'\', \'0\', \'\', \'\', \'0.0\', \'0\', \'0\', \'0\', \'0\', \'\', \'0\', \'\', \'\', \'\', \'\', \'0\', \'30.00\', \'1\', \'0\', \'' + str(shopifyuserid) + '\', \'' + str(userdataid) + '\', \'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\', \'0\', \'1970-01-01 00:00:00\', \'\', \'0\', \'0\', \'0\', \'0\', \'0\', \'\', \'\', \'1970-01-01 00:00:00\', \'0\', NULL, \'\', \'\', \'1970-01-01 00:00:00\', \'1970-01-01 00:00:00\', \'1\', \'0\', \'0\', \'\', \'1\', \'0\', \'10\', \'100\', \'0\');'
+        sqlstring:str='INSERT INTO `users` (`ID`, `USER_NAME`, `USER_EMAIL`, `USER_PASS`, `USER_TYPE`, `DISPLAY_NAME`, `logged_in`, `DATE`, `TITLE`, `USER_FIRSTNAME`, `USER_SURNAME`, `LINE1`, `LINE2`, `POSTCODE`, `TOWN`, `region`, `company`, `COUNTRY`, `PHONE`, `MOBILE_PHONE`, `LISTS`, `STORE`, `SAGE_REF`, `HEAR_ABOUT_US`, `CREDIT`, `MARKETING_OK`, `referee_name`, `date_registered`, `registration_inbound_url`, `af_commissionlevel`, `affiliate_id`, `referer_id`, `is_affiliate`, `affiliate_status`, `postcode2`, `affiliate_credit`, `verified`, `strike_count`, `Deal_count`, `pay_google`, `default_shipmethod`, `fb_userid`, `fb_username`, `fb_blob`, `prefs`, `dupe_reason`, `dupe_id`, `per_item_limit`, `can_use_payflow`, `js_callback`, `user_data`, `user_data_id`, `ip_address`, `http_agent`, `http_accept`, `business_type`, `business_vat`, `business_regnum`, `business_size`, `business_turnover`, `order_count`, `user_email_checked`, `user_email_result`, `email_sent`, `email_open`, `email_bounce`, `email_read`, `email_deleted`, `email_bounce_reason`, `activation_key`, `activation_expires`, `secret_q`, `secret_a`, `nonce`, `interfinancial_params`, `reminder1_sent`, `reminder2_sent`, `CHECKOUT_REMINDERS`, `bypass_cc_enrolled`, `affiliate_scheme`, `affiliate_por_id`, `is_enabled`, `is_cash_affiliate`, `biz_id`, `mail_priority`, `access_level`) VALUES (NULL, \'' + username + '\', \'' + useremail + '\', \'\', \'0\', \'' + displayname + '\', \'2000-01-01 00:00:00\', CURRENT_TIMESTAMP, \'' + title + '\', \'' + firstname + '\', \'' + secondname + '\', \'' + line1 + '\', \'' + line2 + '\', \'' + postcode + '\', \'' + town + '\', \'' + region + '\', \'' + company + '\', \'' + countrycode + '\', \'' + phone + '\', \'' + mobile + '\', NULL, \'1\', \'NONE\', \'' + hearaboutus + '\', \'0.00\', \'' + marketingok + '\', \'Shopify\', \'' + regdate + '\', \'reg inbound url\', \'\', \'\', \'\', \'0\', \'\', \'\', \'0.0\', \'0\', \'0\', \'0\', \'0\', \'\', \'0\', \'\', \'\', \'\', \'\', \'0\', \'30.00\', \'1\', \'0\', \'' + str(shopifyuserid) + '\', \'' + str(userdataid) + '\', \'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\', \'0\', \'1970-01-01 00:00:00\', \'\', \'0\', \'0\', \'0\', \'0\', \'0\', \'\', \'\', \'1970-01-01 00:00:00\', \'0\', NULL, \'\', \'\', \'1970-01-01 00:00:00\', \'1970-01-01 00:00:00\', \'1\', \'0\', \'0\', \'\', \'1\', \'0\', \'10\', \'100\', \'0\');'
         print(sqlstring)
         set_web_dataset(sqlstring)
+        dt2 = get_web_dataset(userid_sql)
+        newcustomerid = int(dt2.iloc[0]['ID'])
     else:
-        userdataid=shopifyuserid
+        newcustomerid = int(dt.iloc[0]['ID'])
 
-    dt = get_web_dataset(userid_sql)
-    newcustomerid = int(dt.iloc[0]['ID'])
     return newcustomerid
 
-def create_web_order(shopifyorderid='0',userid=0,userinfo='',shopitems='',horderdate='0000-00-00 00:00:00.000000',deliveryaddress='',deliverynote='',charge=0,shipcharge=0,gross_basket=0,gross_ship=0.00 ,ship_method='',pay_method='',payid='',order_status='',discount_code='',discount_amount=0.0,discountarray='',accept_substitues=0,stockreduced=0,creditused=0.00,creditapplied=0.00,shipping_discount_used=0.00,shipping_expected_from='0000-00-00 00:00:00.000000',shipping_expected_to='0000-00-00 00:00:00.000000',txn_id='',cart_uniqid='',affiliate_id='',affiliate_spend=0.00,affiliate_spend_applied=0.00,ORDER_EXPIRE=0,rec_done=0,paypal_form='',paypal_items='',tracking_url='',carrier='',shipref='',debug_summary='',sec_ip_address='',sec_http_agent_id='',sec_http_agent='',parent_order_id=0,reminder1_sent='',reminder2_sent='',priority=0,picked_by='',pick_position=0,pick_valid=0,priority_pick=0,affiliate_por_id='',vp_converted='',currency='GBP',currency_rate=0.00,payment=0,biz_id=4,ship_boost_priority=0,ship_boost_paid=0.00,food_bank_id=0):
+def create_web_order(shopifyorderid='0',userid=0,userinfo='',shopitems='',horderdate='0000-00-00 00:00:00',deliveryaddress='',deliverynote='',charge=0,shipcharge=0,gross_basket=0,gross_ship=0.00 ,ship_method='',pay_method='',payid='',order_status='',discount_code='',discount_amount=0.0,discountarray='',accept_substitues=0,stockreduced=0,creditused=0.00,creditapplied=0.00,shipping_discount_used=0.00,shipping_expected_from='0000-00-00 00:00:00',shipping_expected_to='0000-00-00 00:00:00',txn_id='',cart_uniqid='',affiliate_id='',affiliate_spend=0.00,affiliate_spend_applied=0.00,ORDER_EXPIRE=0,rec_done=0,paypal_form='',paypal_items='',tracking_url='',carrier='',shipref='',debug_summary='',sec_ip_address='',sec_http_agent_id='',sec_http_agent='',parent_order_id=0,reminder1_sent='',reminder2_sent='',priority=0,picked_by='',pick_position=0,pick_valid=0,priority_pick=0,affiliate_por_id='',vp_converted='',currency='GBP',currency_rate=0.00,payment=0,biz_id=4,ship_boost_priority=0,ship_boost_paid=0.00,food_bank_id=0):
     sqlstring='INSERT INTO `orders` (`ID`, `liquid_id`, `USER_ID`, `session_id`, `USER_INFO`, `ITEMS`, `DELIVERY_ADDRESS`, `DELIVERY_NOTE`, `ORDER_DATE`, `hORDER_DATE`, `CHARGE`, `SHIP_CHARGE`, `gross_basket`, `gross_ship`, `SHIP_METHOD`, `PAY_METHOD`, `PAY_ID`, `ORDER_STATUS`, `DISCOUNT_CODE`, `DISCOUNT_AMOUNT`, `DISCOUNT_ARRAY`, `ACCEPT_SUBSTITUTES`, `STOCK_REDUCED`, `CREDIT_USED`, `CREDIT_APPLIED`, `shipping_discount_used`, `shipping_expected_from`, `shipping_expected_to`, `txn_id`, `cart_uniqid`, `affiliate_id`, `affiliate_spend`, `affiliate_spend_applied`, `ORDER_EXPIRE`, `rec_done`, `paypal_form`, `paypal_items`, `tracking_url`, `carrier`, `shipref`, `debug_summary`, `sec_ip_address`, `sec_http_agent_id`, `sec_http_agent`, `parent_order_id`, `reminder1_sent`, `reminder2_sent`, `priority`, `picked_by`, `pick_position`, `pick_valid`, `priority_pick`, `affiliate_por_id`, `vp_converted`, `currency`, `currency_rate`, `payment`, `biz_id`, `ship_boost_priority`, `ship_boost_paid`, `food_bank_id`) VALUES (NULL, \'0\', \'' + str(userid) + '\',\'' + str(shopifyorderid) +'\',\'' + str(userinfo) + '\',\'' + str(shopitems) + '\',\'' + str(deliveryaddress) + '\',\'' + str(deliverynote) + '\', \'\',\'' + str(horderdate) + '\',\'' + str(charge ) + '\',\'' + str(shipcharge) + '\',\'' + str(gross_basket) + '\',\'' + str(gross_ship) + '\',\'' + str(ship_method) + '\',\'' + str(pay_method) + '\',\'' + str(payid) + '\',\'' + str(order_status) + '\',\'' + str(discount_code) + '\',\'' + str(discount_amount) + '\',\'' + str(discountarray) + '\',\'' + str(accept_substitues) + '\',\'' + str(stockreduced) + '\',\'' + str(creditused) + '\',\'' + str(creditapplied) + '\',\'' + str(shipping_discount_used) + '\',\'' + str(shipping_expected_from) + '\',\'' + str(shipping_expected_to) + '\',\'' + str(txn_id) + '\',\'' + str(cart_uniqid) + '\',\'' + str(affiliate_id) + '\',\'' + str(affiliate_spend) + '\',\'' + str(affiliate_spend_applied) + '\',\'' + str(ORDER_EXPIRE) + '\',\'' + str(rec_done) + '\',\'' + str(paypal_form) + '\',\'' + str(paypal_items) + '\',\'' + str(tracking_url) + '\',\'' + str(carrier) + '\',\'' + str(shipref) + '\',\'' + str(debug_summary) + '\',\'' + str(sec_ip_address) + '\',\'' + str(sec_http_agent_id) + '\',\'' + str(sec_http_agent) + '\',\'' + str(parent_order_id) + '\',\'' + str(reminder1_sent) + '\',\'' + str(reminder2_sent) + '\',\'' + str(priority) + '\',\'' + str(picked_by) + '\',\'' + str(pick_position) + '\',\'' + str(pick_valid) +  '\',\'' + str(priority_pick) + '\',\'' + str(affiliate_por_id) + '\',\'' + str(vp_converted) + '\',\'' + str(currency) + '\',\'' + str(currency_rate) + '\',\'' + str(payment) + '\',\'' + str(biz_id) + '\',\'' + str(ship_boost_priority) + '\',\'' + str(ship_boost_paid) + '\',\'' + str(food_bank_id) + '\')'
     print(sqlstring)
+    set_web_dataset(sqlstring)
 
 def create_web_items(itemsdictarray):
     #loop the items
@@ -183,3 +260,6 @@ def create_web_items(itemsdictarray):
         linecounter+=1
     firstpart=firstpart.__add__(line_inst)
     return firstpart
+
+
+
