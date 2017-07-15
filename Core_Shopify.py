@@ -6,12 +6,23 @@ import pymysql
 from sqlalchemy import create_engine
 import uuid
 import pymysql
-
+import ast
 
 from phpserialize import serialize, unserialize
 keyp:str ="461824c0a06d4be0e94851deeabc3965"
 passp:str  ="9bb4f551ba4888c9199b7a9509f0e872"
 urlstart:str ="https://dans-daily-deals.myshopify.com/admin"
+
+def get_latest_orders():
+    #todo Write the code to read and write the last time stamp
+    lastupdatetime:str='2017-07-14 15:57:11'#last update timestamp
+    o=requests.get(urlstart + '/orders.json?updated_at_min=' + lastupdatetime + '&fields=id',auth=(keyp,passp))#get the latest orders ID's
+    dicto:dict=ast.literal_eval(o.text)#convert text to dictionary
+
+    for val in dicto['orders']:#loop the orders dictionary that contain just order ID's
+        k:dict=val#convert the string to a dictionary
+        j:int=k.get('id',0)#get the value of the ID
+        download_order(j)#call the function that downloads the order
 
 def download_order(orderid=0):
     if orderid==0:
@@ -35,6 +46,7 @@ def download_order(orderid=0):
     shippingaddress: dict = j['shipping_address']
     customerdetails: dict = j['customer']
     lineitems = j['line_items']
+    d=ast.literal_eval(lineitems)
     af_lineitems = create_web_items(lineitems)
     c = j.__len__()
     shopify_Order_id: int = int(j.get('id', 0))
